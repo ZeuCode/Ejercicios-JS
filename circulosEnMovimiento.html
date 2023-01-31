@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Practicando con canvas</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+      canvas {
+        background: #eee;
+        display: block;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="800" height="800"></canvas>
+
+    <script>
+      let canvas = document.getElementById("myCanvas");
+      let ctx = canvas.getContext("2d");
+
+      //ctx.stroke();
+      class Circulo {
+        constructor(x, y, dx, dy, radio, color) {
+          this.radio = radio;
+          this.x = x;
+          this.y = y;
+          this.dx = dx;
+          this.dy = dy;
+          this.color = color;
+        }
+        dibujar() {
+          ctx.beginPath();
+          // ctx.strokeStyle = this.color;
+          ctx.fillStyle = this.color;
+          ctx.arc(this.x, this.y, this.radio, 0, 2 * Math.PI);
+          ctx.fill();
+          // ctx.stroke();
+        }
+        mover() {
+          if (
+            this.x + this.dx - this.radio < 0 ||
+            this.x + this.dx + this.radio > canvas.width
+          ) {
+            this.dx *= -1;
+            this.cambiaColor(colores[getRandom(0, colores.length)]);
+          }
+          if (
+            this.y + this.dy - this.radio < 0 ||
+            this.y + this.dy + this.radio > canvas.height
+          ) {
+            this.dy *= -1;
+            this.cambiaColor(colores[getRandom(0, colores.length)]);
+          }
+          this.x += this.dx;
+          this.y += this.dy;
+        }
+        cambiaColor(color) {
+          this.color = color;
+        }
+      }
+      class Controladora {
+        constructor() {
+          this.circulos = [];
+        }
+        dibujarTodo() {
+          ctx.lineWidth = 2.0;
+          for (const circulo of this.circulos) {
+            circulo.dibujar();
+          }
+        }
+
+        moverTodo() {
+          for (const circulo of this.circulos) {
+            circulo.mover();
+          }
+        }
+
+        animarTodo() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          this.dibujarTodo();
+          this.moverTodo();
+        }
+      }
+      const getRandom = (min, max) => {
+        //Devuelve un numero aleatorio en el rango: [min,max[
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min) + min);
+      };
+      const colores = [
+        "red",
+        "fuchsia",
+        "lime",
+        "blue",
+        "aqua",
+        "magenta",
+        "cyan",
+        "orange",
+      ];
+      const velocidades = [-3, -2, 2, 3];
+      const obj = new Controladora();
+
+      for (let i = 0; i < 10; ++i) {
+        obj.circulos.push(
+          new Circulo(
+            getRandom(50, canvas.width - 50),
+            getRandom(50, canvas.height - 50),
+            velocidades[getRandom(0, velocidades.length)],
+            velocidades[getRandom(0, velocidades.length)],
+            getRandom(30, 50),
+            colores[getRandom(0, colores.length)]
+          )
+        );
+      }
+
+      const animar = () => {
+        obj.animarTodo();
+        requestAnimationFrame(animar);
+      };
+      animar();
+    </script>
+  </body>
+</html>
