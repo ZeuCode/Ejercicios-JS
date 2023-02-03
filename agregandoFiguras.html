@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Practicando con canvas</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+      canvas {
+        background: #eee;
+        display: block;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="800" height="800"></canvas>
+    <script>
+      let canvas = document.getElementById("myCanvas");
+      let ctx = canvas.getContext("2d");
+      class Circulo {
+        constructor(x, y, dx, dy, radio, color) {
+          this.radio = radio;
+          this.x = x;
+          this.y = y;
+          this.dx = dx;
+          this.dy = dy;
+          this.color = color;
+        }
+        dibujar() {
+          ctx.beginPath();
+          // ctx.strokeStyle = this.color;
+          ctx.fillStyle = this.color;
+          ctx.arc(this.x, this.y, this.radio, 0, 2 * Math.PI);
+          ctx.fill();
+          // ctx.stroke();
+        }
+        mover() {
+          if (
+            this.x + this.dx - this.radio < 0 ||
+            this.x + this.dx + this.radio > canvas.width
+          ) {
+            this.dx *= -1;
+            this.cambiaColor(colores[getRandom(0, colores.length)]);
+          }
+          if (
+            this.y + this.dy - this.radio < 0 ||
+            this.y + this.dy + this.radio > canvas.height
+          ) {
+            this.dy *= -1;
+            this.cambiaColor(colores[getRandom(0, colores.length)]);
+          }
+          this.x += this.dx;
+          this.y += this.dy;
+        }
+        cambiaColor(color) {
+          this.color = color;
+        }
+      }
+
+      class Cuadrado {
+        constructor(x, y, dx, dy, lado, color) {
+          this.lado = lado;
+          this.x = x;
+          this.y = y;
+          this.dx = dx;
+          this.dy = dy;
+          this.color = color;
+        }
+        dibujar() {
+          ctx.beginPath();
+          // ctx.strokeStyle = this.color;
+          ctx.fillStyle = this.color;
+          ctx.rect(this.x, this.y, this.lado, this.lado);
+          ctx.fill();
+          // ctx.stroke();
+        }
+        mover() {
+          if (
+            this.x + this.dx < 0 ||
+            this.x + this.dx + this.lado > canvas.width
+          ) {
+            this.dx *= -1;
+            this.cambiaColor(colores[getRandom(0, colores.length)]);
+          }
+          if (
+            this.y + this.dy < 0 ||
+            this.y + this.dy + this.lado > canvas.height
+          ) {
+            this.dy *= -1;
+            this.cambiaColor(colores[getRandom(0, colores.length)]);
+          }
+          this.x += this.dx;
+          this.y += this.dy;
+        }
+        cambiaColor(color) {
+          this.color = color;
+        }
+      }
+
+      class Triangulo {
+        constructor(x, y, dx, dy, lado, color) {
+          this.lado = lado;
+          this.x = x;
+          this.y = y;
+          this.dx = dx;
+          this.dy = dy;
+          this.color = color;
+        }
+        dibujar() {
+          ctx.beginPath();
+          ctx.fillStyle = this.color;
+          ctx.moveTo(this.x, this.y);
+          ctx.lineTo(this.x+(this.lado/2),this.y-(Math.sqrt(3)*(this.lado/2)));
+          ctx.lineTo(this.x+this.lado, this.y);
+          ctx.fill();
+        }
+        mover() {
+          if (
+            this.x + this.dx < 0 ||
+            this.x + this.dx + this.lado > canvas.width
+          ) {
+            this.dx *= -1;
+            this.cambiaColor(colores[getRandom(0, colores.length)]);
+          }
+          if (
+            this.y + this.dy-Math.sqrt(3)*(this.lado/2)< 0 ||
+            this.y + this.dy > canvas.height
+          ) {
+            this.dy *= -1;
+            this.cambiaColor(colores[getRandom(0, colores.length)]);
+          }
+          this.x += this.dx;
+          this.y += this.dy;
+        }
+        cambiaColor(color) {
+          this.color = color;
+        }
+      }
+
+      class Controladora {
+        constructor() {
+          this.figuras = [];
+        }
+        dibujarTodo() {
+          ctx.lineWidth = 2.0;
+          for (const figura of this.figuras) {
+            figura.dibujar();
+          }
+        }
+
+        moverTodo() {
+          for (const figura of this.figuras) {
+            figura.mover();
+          }
+        }
+
+        animarTodo() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          this.dibujarTodo();
+          this.moverTodo();
+        }
+      }
+      const getRandom = (min, max) => {
+        //Devuelve un numero aleatorio en el rango: [min,max[
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min) + min);
+      };
+      const colores = [
+        "red",
+        "fuchsia",
+        "lime",
+        "blue",
+        "aqua",
+        "magenta",
+        "cyan",
+        "orange",
+        "indigo",
+        "green",
+        "dodgerblue",
+      ];
+      const velocidades = [-3, -2, 2, 3];
+      const obj = new Controladora();
+
+      document.addEventListener("keydown", keyDownHandler, false);
+
+      function keyDownHandler(e) {
+        if (e.code === "KeyC") {
+          obj.figuras.push(
+            new Circulo(
+              getRandom(50, canvas.width - 50),
+              getRandom(50, canvas.height - 50),
+              velocidades[getRandom(0, velocidades.length)],
+              velocidades[getRandom(0, velocidades.length)],
+              getRandom(30, 50),
+              colores[getRandom(0, colores.length)]
+            )
+          );
+        } else if (e.code === "KeyR") {
+          obj.figuras.push(
+            new Cuadrado(
+              getRandom(50, canvas.width - 80),
+              getRandom(50, canvas.height - 80),
+              velocidades[getRandom(0, velocidades.length)],
+              velocidades[getRandom(0, velocidades.length)],
+              getRandom(60, 80),
+              colores[getRandom(0, colores.length)]
+            )
+          );
+        }else if(e.code==="KeyT"){
+          obj.figuras.push(
+            new Triangulo(
+              getRandom(90, canvas.width - 80),
+              getRandom(90, canvas.height - 80),
+              velocidades[getRandom(0, velocidades.length)],
+              velocidades[getRandom(0, velocidades.length)],
+              getRandom(60, 80),
+              colores[getRandom(0, colores.length)]
+            )
+          );
+        } else if (e.code === "KeyD") {
+          obj.figuras = [];
+        }
+      }
+
+      const animar = () => {
+        obj.animarTodo();
+        requestAnimationFrame(animar);
+      };
+      animar();
+    </script>
+  </body>
+</html>
